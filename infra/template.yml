@@ -1,5 +1,5 @@
 Resources:
-  telemetrytableDC62CBE5:
+  telemetryhistorytableB1B28721:
     Type: AWS::DynamoDB::Table
     Properties:
       AttributeDefinitions:
@@ -13,11 +13,11 @@ Resources:
           KeyType: HASH
         - AttributeName: timestamp
           KeyType: RANGE
-      TableName: telemetry_table
+      TableName: telemetry_history_table
     UpdateReplacePolicy: Delete
     DeletionPolicy: Delete
     Metadata:
-      aws:cdk:path: DeviceToCloudTelemetryDemoStack/telemetry_table/Resource
+      aws:cdk:path: DeviceToCloudTelemetryDemoStack/telemetry_history_table/Resource
   telemetryfunctiongetServiceRoleE02B7898:
     Type: AWS::IAM::Role
     Properties:
@@ -53,7 +53,7 @@ Resources:
             Effect: Allow
             Resource:
               Fn::GetAtt:
-                - telemetrytableDC62CBE5
+                - telemetryhistorytableB1B28721
                 - Arn
         Version: "2012-10-17"
       PolicyName: telemetryfunctiongetServiceRoleDefaultPolicyD5C176AB
@@ -67,11 +67,11 @@ Resources:
       Code:
         S3Bucket:
           Fn::Sub: cdk-hnb659fds-assets-${AWS::AccountId}-ap-northeast-1
-        S3Key: d4e0b66ff396384a036ac238cd39399caaf88054e5e75fad368ab0a148f3565b.zip
+        S3Key: 70e57dba1103d5a4453f863102bfae3544049e7c59d6dddf0af52f8bc29d0158.zip
       Environment:
         Variables:
           TABLE_NAME:
-            Ref: telemetrytableDC62CBE5
+            Ref: telemetryhistorytableB1B28721
       FunctionName: telemetry_function_get
       Handler: get.handler
       MemorySize: 128
@@ -86,7 +86,7 @@ Resources:
       - telemetryfunctiongetServiceRoleE02B7898
     Metadata:
       aws:cdk:path: DeviceToCloudTelemetryDemoStack/telemetry_function_get/Resource
-      aws:asset:path: asset.d4e0b66ff396384a036ac238cd39399caaf88054e5e75fad368ab0a148f3565b
+      aws:asset:path: asset.70e57dba1103d5a4453f863102bfae3544049e7c59d6dddf0af52f8bc29d0158
       aws:asset:is-bundled: false
       aws:asset:property: Code
   telemetryfunctiongetLogRetention528965BD:
@@ -199,7 +199,7 @@ Resources:
             Effect: Allow
             Resource:
               Fn::GetAtt:
-                - telemetrytableDC62CBE5
+                - telemetryhistorytableB1B28721
                 - Arn
         Version: "2012-10-17"
       PolicyName: telemetryfunctionpostServiceRoleDefaultPolicy969E0D4F
@@ -213,11 +213,11 @@ Resources:
       Code:
         S3Bucket:
           Fn::Sub: cdk-hnb659fds-assets-${AWS::AccountId}-ap-northeast-1
-        S3Key: d4e0b66ff396384a036ac238cd39399caaf88054e5e75fad368ab0a148f3565b.zip
+        S3Key: 70e57dba1103d5a4453f863102bfae3544049e7c59d6dddf0af52f8bc29d0158.zip
       Environment:
         Variables:
           TABLE_NAME:
-            Ref: telemetrytableDC62CBE5
+            Ref: telemetryhistorytableB1B28721
       FunctionName: telemetry_function_post
       Handler: post.handler
       MemorySize: 128
@@ -232,7 +232,7 @@ Resources:
       - telemetryfunctionpostServiceRole1C106D08
     Metadata:
       aws:cdk:path: DeviceToCloudTelemetryDemoStack/telemetry_function_post/Resource
-      aws:asset:path: asset.d4e0b66ff396384a036ac238cd39399caaf88054e5e75fad368ab0a148f3565b
+      aws:asset:path: asset.70e57dba1103d5a4453f863102bfae3544049e7c59d6dddf0af52f8bc29d0158
       aws:asset:is-bundled: false
       aws:asset:property: Code
   telemetryfunctionpostLogRetention080D1BC0:
@@ -361,7 +361,7 @@ Resources:
   CDKMetadata:
     Type: AWS::CDK::Metadata
     Properties:
-      Analytics: v2:deflate64:H4sIAAAAAAAA/91VUW/TMBD+LfPj5JqtlUDqW4qKmIAR0vKAqqpybS81TezIdjoFK/+ds5OUTIM+gYT2FPu783ffnc+XKZm+viE3V/TRThg/Tgq5J37lKDtigHaeN4qWmgO4pvtCbDyqqHHSSa0+iAbNPQK7QHN0jTByTRWWK9RiZLVxlz32siikyj9pHqA0+bZLl9kuW375ulytwdeIUp9okepCMuBBXFhndBNYgpT7gbXd4rcPKsprcUHLPafEv6sVCyJBsFAnabQqhXK9iofeeP9LWKHzTDhwARjN32BUQnTTrOSPs3RZCl0PFKxTHZYHqnghTL8ztQqenTLsEeV8ORawiV7XaBuM/6u0WNGhhGGdClNKa2HXYklL4jMdm4FaW5eCL+I9V0YqJitaJIzp+pxS5xMOJKzLIcZHJVU0FzzerxQW4vsnWJOY3nfbq13rdAgxdMXG91YHPXu4U9BR4mwbynzZeJn3BST4AlL4M29s1SAcd3Bs4oFurYPlWZTnMOcw85wI78COBP8O/mv8/1hoLExXkxbb2Q6uWDhLkvCBPVnU7CjcgloxvPv49jGMG0s+jmYOppXMgfyRNqcp8e+dq5JKPj0EoQDDwQZC8kgZ0biLeAYT6hxqG6E75URuaJzTY6oR3t0unGxbnAmra8N68phIoId/SPTqrWH9uXZV7VqcNu6g1asZuZ2S29nVdyvlpJ+CJOu+PwEzE6zxAQcAAA==
+      Analytics: v2:deflate64:H4sIAAAAAAAA/91VUW/bIBD+LeWxImxJpE3KmzNlWrWt85z0YYqiiAB1WGywAKfykP/7DmxnqdrmaZOmPhm+O7777jjOEzJ5NyZvr+iDHTF+GBVyR/zSUXbAAG09bxQtNQdwRXeFWHtUUeOkk1p9Fg2aeQR2gWboGmHkmiosl6jFyGrjLnvsZFFIlX/VPEBp8mObLrJttvh+t1iuwNeIUh9pkepCMuBBXFhndBNYgpTbgbXd4A/3KsprcUHLHafEf6wVCyJBsFBHabQqhXK9ivveePtHWKHzTDhwARjN3mNUQnTTLOWvk3RZCl0PFKxTHZZ7qnghTL8ztQqenTLsEeV8cS5gHb2u0SYY/1dpsaJDCcM6FaaU1sKuxZKWxGc6NgO1ti4Fn8d7roxUTFa0SBjT9SmlziccSFiXQ4yPSqpoLni8XyksxPePsCYxve+mV7vS6RBi6Iq1760OenZ/o6CjxMk2lPmy8TLvK0jwFaTwMm9s1SAcd3Bs4oFupYPlSZSnMOcw85wI78CeCX4O/mv8/1hoLExXkxbb6RauWDhLkvCBPZnX7CDcnFoxvPv49jGMG0u+nM0cTCuZA/kDbY4T4j85VyWVfHwIQgGGgw2E5JEyonEX8Qwm1CnUJkI3yonc0Dinz6nO8O524WTb4kxYXRvWk8dEAj38Q6JXbw3rb7WratfitHF7rd5MyXhCxtOrn1bKUT8FSdZ9fwN1UI7lAQcAAA==
     Metadata:
       aws:cdk:path: DeviceToCloudTelemetryDemoStack/CDKMetadata/Default
 Outputs:

@@ -19,11 +19,11 @@ class InfraStack(Stack):
     def __init__(self, scope: Construct, construct_id: str, **kwargs) -> None:
         super().__init__(scope, construct_id, **kwargs)
 
-        # create telemetry_table
-        telemetry_table = dynamodb.Table(
+        # create telemetry_history_table
+        telemetry_history_table = dynamodb.Table(
             self,
-            "telemetry_table",
-            table_name="telemetry_table",
+            "telemetry_history_table",
+            table_name="telemetry_history_table",
             partition_key=dynamodb.Attribute(
                 name="edge_id",
                 type=dynamodb.AttributeType.STRING
@@ -42,12 +42,12 @@ class InfraStack(Stack):
             "telemetry_function_get",
             function_name="telemetry_function_get",
             runtime=lambda_.Runtime.PYTHON_3_12,
-            handler="get.handler",
-            code=lambda_.Code.from_asset(os.path.join(os.path.dirname(__file__), "../../lambda_src")),
+            handler="get.get.handler",
+            code=lambda_.Code.from_asset(os.path.join(os.path.dirname(__file__), "../../lambda_src/telemetry")),
             timeout=Duration.seconds(30),
             memory_size=128,
             environment={
-                "TABLE_NAME": telemetry_table.table_name,
+                "TABLE_NAME": telemetry_history_table.table_name,
             },
             log_retention=logs.RetentionDays.ONE_WEEK,
         )
@@ -57,20 +57,20 @@ class InfraStack(Stack):
             "telemetry_function_post",
             function_name="telemetry_function_post",
             runtime=lambda_.Runtime.PYTHON_3_12,
-            handler="post.handler",
-            code=lambda_.Code.from_asset(os.path.join(os.path.dirname(__file__), "../../lambda_src")),
+            handler="post.post.handler",
+            code=lambda_.Code.from_asset(os.path.join(os.path.dirname(__file__), "../../lambda_src/telemetry")),
             timeout=Duration.seconds(30),
             memory_size=128,
             environment={
-                "TABLE_NAME": telemetry_table.table_name,
+                "TABLE_NAME": telemetry_history_table.table_name,
             },
             log_retention=logs.RetentionDays.ONE_WEEK,
         )
 
 
         # grant lambda function permissions to access the DynamoDB table
-        telemetry_table.grant_read_data(telemetry_function_get)
-        telemetry_table.grant_read_write_data(telemetry_function_post)
+        telemetry_history_table.grant_read_data(telemetry_function_get)
+        telemetry_history_table.grant_write_data(telemetry_function_post)
 
         # create API Gateway HTTP API
         http_api = apigwv2.HttpApi(

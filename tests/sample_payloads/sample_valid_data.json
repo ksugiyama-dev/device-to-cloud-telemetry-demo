@@ -1,0 +1,22 @@
+{
+    "device_id": "2b1cf803-12c6-4984-9485-8d192e6c4864",
+    "timestamp": "2023-06-01T12:00:00Z",
+    "user_id": "924f670e-9730-4eb3-a45a-d753badab738",
+    "temperature": 25.5,
+    "humidity": 60.2,
+    "pressure": 1013.25,
+    "status": "active",
+    "battery_level": 85,
+    "signal_strength": -70,
+    "error_codes": [],
+    "firmware_version": "1.0.3",
+    "last_maintenance": "2023-05-15T10:30:00Z",
+    "alerts": [
+        {
+            "type": "temperature",
+            "message": "Temperature exceeds threshold",
+            "severity": "warning",
+            "timestamp": "2023-06-01T11:45:00Z"
+        }
+    ]
+}
