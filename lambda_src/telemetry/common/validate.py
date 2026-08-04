@@ -2,20 +2,17 @@ import json
 import logging
 
 def validate_get(event: dict, param: list):
-    if "body" not in event:
-        return False, "Missing body in request"
+    if "pathParameters" not in event or "edge_id" not in event["pathParameters"]:
+        return False, "Missing edge_id in path parameters"
+
+    if "queryStringParameters" not in event or not event["queryStringParameters"]:
+        return False, "Missing query string parameters"
+    
+    if "start_timestamp" not in event["queryStringParameters"] or "end_timestamp" not in event["queryStringParameters"]:
+        return False, "Missing start_timestamp or end_timestamp in query string parameters"
 
     if event.get("httpMethod") != 'GET':
         return False, f"Method {event.get('httpMethod')} not allowed"
-
-    try:
-        body = event["body"]
-        for i in param:
-            if i not in body:
-                return False, f'Invalid key: {i}'
-        # TelemetryDataGet.model_validate(body)
-    except Exception as e:
-        return False, f"Invalid telemetry data: {str(e)}"
 
     return True, None
 

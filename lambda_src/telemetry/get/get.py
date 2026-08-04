@@ -31,10 +31,12 @@ def handler(event, context):
         }
     
     # body: TelemetryDataGet = event["body"]
-    body: dict = event["body"]
+    edge_id: str = event["pathParameters"]["edge_id"]
+    start_timestamp: str = event["queryStringParameters"]["start_timestamp"]
+    end_timestamp: str = event["queryStringParameters"]["end_timestamp"]
 
     try:
-        response = dynamodb_common.telemetry_data_get(body)
+        response = dynamodb_common.telemetry_data_get(edge_id, start_timestamp, end_timestamp)
 
     except Exception as e:
         logger.error(f"Error occurred while fetching data from DynamoDB: {e}")

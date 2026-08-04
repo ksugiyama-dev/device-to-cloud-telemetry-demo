@@ -51,7 +51,7 @@ def handler(event, context):
     body: dict = event["body"]
 
     try:
-        response = dynamodb_common.telemetry_data_post(body)
+        response = dynamodb_common.telemetry_data_post(body, item_list, alert_item_list)
         logger.info(f"Successfully saved telemetry data to DynamoDB: {response}")
 
     except ValueError as e:
@@ -85,5 +85,5 @@ def handler(event, context):
         "headers": {
             "content-type": "application/json"
         },
-        "body": {}
+        "body": json.dumps({})
     }

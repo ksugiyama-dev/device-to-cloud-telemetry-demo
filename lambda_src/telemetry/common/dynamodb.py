@@ -21,10 +21,10 @@ def telemetry_data_post(body: dict):
 
     return response
 
-def telemetry_data_get(body: dict) -> list:
+def telemetry_data_get(edge_id: str, start_timestamp: str, end_timestamp: str) -> list:
     dynamodb = boto3.client('dynamodb')
 
-    logger.info(f'Querying DynamoDB: {body}')
+    logger.info(f'Querying DynamoDB: {edge_id}, {start_timestamp}, {end_timestamp}')
 
     response_db = dynamodb.query(
         TableName=os.environ['TABLE_NAME'],
@@ -33,9 +33,9 @@ def telemetry_data_get(body: dict) -> list:
             '#ts': 'timestamp'
         },
         ExpressionAttributeValues={
-            ':edge_id': {'S': body['edge_id']},
-            ':start_ts': {'S': str(body['start_timestamp'])},
-            ':end_ts': {'S': str(body['end_timestamp'])}
+            ':edge_id': {'S': edge_id},
+            ':start_ts': {'S': start_timestamp},
+            ':end_ts': {'S': end_timestamp}
         }
     )
 
