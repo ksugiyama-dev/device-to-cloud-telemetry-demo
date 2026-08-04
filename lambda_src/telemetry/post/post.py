@@ -1,8 +1,8 @@
 import json
 import logging
-import boto3
-import common.dynamodb as dynamodb_common
 
+import common.dynamodb as dynamodb_common
+from common.validate import validate_post
 # from lambda_src.format.api_format import TelemetryDataPost
 
 logging.basicConfig(level=logging.INFO)
@@ -34,7 +34,7 @@ alert_item_list = [
 def handler(event, context):
     logger.info(f"Received event: {event}")
 
-    valid, error_message = validate(event)
+    valid, error_message = validate_post(event)
 
     if not valid:
         return {
@@ -51,7 +51,8 @@ def handler(event, context):
     body: dict = event["body"]
 
     try:
-        dynamodb_common.telemetry_data_post(body)
+        response = dynamodb_common.telemetry_data_post(body)
+        logger.info(f"Successfully saved telemetry data to DynamoDB: {response}")
 
     except ValueError as e:
         logger.error(f"Validation error: {e}")
@@ -84,36 +85,5 @@ def handler(event, context):
         "headers": {
             "content-type": "application/json"
         },
-        "body": json.dumps({
-            "message": "Created telemetry data."
-        })
+        "body": {}
     }
-
-
-def validate(event: dict) -> tuple[bool, str]:
-    if "body" not in event:
-        return False, "Missing body in request"
-
-    if event.get("httpMethod") != 'POST':
-        return False, f"Method {event.get('httpMethod')} not allowed"
-
-    try:
-        body = event["body"]    
-        for key, value in body.items():
-            if key not in item_list:
-                return False, f'Invalid key: {key}'
-            
-            if key == 'alerts' and isinstance(value, list):
-                for i in value:
-                    if isinstance(i, dict):
-                        for alert_key in i.keys():
-                            if alert_key not in alert_item_list:
-                                return False, f'Invalid key in alert: {alert_key}'
-                    else:
-                        return False, f'Invalid alert item: {i}'
-
-        # TelemetryDataPost.model_validate(body)
-    except Exception as e:
-        return False, f"Invalid telemetry data: {str(e)}"
-
-    return True, None

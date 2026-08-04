@@ -1,10 +1,8 @@
 import json
-import json
 import logging
-import boto3
-from boto3.dynamodb.conditions import Key
 
 import common.dynamodb as dynamodb_common
+from common.validate import validate_get
 
 # from lambda_src.format.api_format import TelemetryDataGet
 
@@ -19,7 +17,7 @@ item_list = [
 
 def handler(event, context):
     logger.info(f"Received event: {event}")
-    valid, error_message = validate(event)
+    valid, error_message = validate_get(event, item_list)
 
     if not valid:
         return {
@@ -70,21 +68,3 @@ def handler(event, context):
             "items": response
         })
     }
-
-def validate(event: dict) -> tuple[bool, str]:
-    if "body" not in event:
-        return False, "Missing body in request"
-
-    if event.get("httpMethod") != 'GET':
-        return False, f"Method {event.get('httpMethod')} not allowed"
-
-    try:
-        body = event["body"]
-        for i in item_list:
-            if i not in body:
-                return False, f'Invalid key: {i}'
-        # TelemetryDataGet.model_validate(body)
-    except Exception as e:
-        return False, f"Invalid telemetry data: {str(e)}"
-
-    return True, None
