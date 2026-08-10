@@ -1,7 +1,6 @@
 import json
-import logging
 
-def validate_get(event: dict, param: list):
+def validate_get(event: dict):
     if "pathParameters" not in event or "edge_id" not in event["pathParameters"]:
         return False, "Missing edge_id in path parameters"
 
@@ -16,15 +15,11 @@ def validate_get(event: dict, param: list):
 
     return True, None
 
-def validate_post(event: dict, param: list, param2: list = []):
-    if "body" not in event:
-        return False, "Missing body in request"
-
-    if event.get("httpMethod") != 'POST':
-        return False, f"Method {event.get('httpMethod')} not allowed"
+def validate_post(body: dict, param: list, param2: list = None):
+    if body.get("httpMethod") != 'POST':
+        return False, f"Method {body.get('httpMethod')} not allowed"
 
     try:
-        body = event["body"]    
         for key, value in body.items():
             if key not in param:
                 return False, f'Invalid key: {key}'

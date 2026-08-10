@@ -47,6 +47,7 @@ class InfraStack(Stack):
             timeout=Duration.seconds(30),
             memory_size=128,
             environment={
+                "LOG_LEVEL": "INFO",
                 "TABLE_NAME": telemetry_history_table.table_name,
             },
             log_retention=logs.RetentionDays.ONE_WEEK,
@@ -62,6 +63,7 @@ class InfraStack(Stack):
             timeout=Duration.seconds(30),
             memory_size=128,
             environment={
+                "LOG_LEVEL": "INFO",
                 "TABLE_NAME": telemetry_history_table.table_name,
             },
             log_retention=logs.RetentionDays.ONE_WEEK,
@@ -93,7 +95,7 @@ class InfraStack(Stack):
 
         # add a route to the API Gateway for the lambda function
         http_api.add_routes(
-            path="/telemetry",
+            path="/telemetry/{edge_id}",
             methods=[apigwv2.HttpMethod.GET],
             integration=lambda_integration_get,
         )

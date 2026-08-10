@@ -1,3 +1,4 @@
+import os
 import json
 import logging
 
@@ -6,8 +7,9 @@ from common.validate import validate_get
 
 # from lambda_src.format.api_format import TelemetryDataGet
 
-logging.basicConfig(level=logging.INFO)
+LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")
 logger = logging.getLogger(__name__)
+logger.setLevel(LOG_LEVEL)
 
 item_list = [
     'edge_id',
@@ -16,8 +18,8 @@ item_list = [
 ]
 
 def handler(event, context):
-    logger.info(f"Received event: {event}")
-    valid, error_message = validate_get(event, item_list)
+    logger.info(f"Received event: edge_id={event.get('pathParameters', {}).get('edge_id')}, start_timestamp={event.get('queryStringParameters', {}).get('start_timestamp')}, end_timestamp={event.get('queryStringParameters', {}).get('end_timestamp')}")
+    valid, error_message = validate_get(event)
 
     if not valid:
         return {
@@ -31,15 +33,15 @@ def handler(event, context):
         }
     
     # body: TelemetryDataGet = event["body"]
-    edge_id: str = event["pathParameters"]["edge_id"]
-    start_timestamp: str = event["queryStringParameters"]["start_timestamp"]
-    end_timestamp: str = event["queryStringParameters"]["end_timestamp"]
+    edge_id: str = event.get('pathParameters', {}).get('edge_id')
+    start_timestamp: str = event.get('queryStringParameters', {}).get('start_timestamp')
+    end_timestamp: str = event.get('queryStringParameters', {}).get('end_timestamp')
 
     try:
         response = dynamodb_common.telemetry_data_get(edge_id, start_timestamp, end_timestamp)
 
     except Exception as e:
-        logger.error(f"Error occurred while fetching data from DynamoDB: {e}")
+        logger.exception(f"Error occurred while fetching data from DynamoDB: {e}")
         return {
             "statusCode": 500,
             "headers": {
@@ -51,16 +53,15 @@ def handler(event, context):
         }
     
     if not response:
+        logger.info(f"Get Telemetry Data successful: edge_id={edge_id}, start_timestamp={start_timestamp}, end_timestamp={end_timestamp}")
         return {
-            "statusCode": 404,
+            "statusCode": 200,
             "headers": {
                 "content-type": "application/json"
             },
-            "body": json.dumps({
-                "error": "No telemetry data found for the given edge_id and timestamp range"
-            })
+            "body": json.dumps({})
         }
-    logger.info(f"Return value: {response}")
+    logger.info(f"Get Telemetry Data successful: edge_id={edge_id}, start_timestamp={start_timestamp}, end_timestamp={end_timestamp}")
     return {
         "statusCode": 200,
         "headers": {

@@ -1,3 +1,4 @@
+import os
 import json
 import logging
 
@@ -5,10 +6,11 @@ import common.dynamodb as dynamodb_common
 from common.validate import validate_post
 # from lambda_src.format.api_format import TelemetryDataPost
 
-logging.basicConfig(level=logging.INFO)
+LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")
 logger = logging.getLogger(__name__)
+logger.setLevel(LOG_LEVEL)
 
-item_list = [
+required_item_list = [
     'edge_id',
     'timestamp',
     'firmware_version',
@@ -24,7 +26,7 @@ item_list = [
     'alerts'
 ]
 
-alert_item_list = [
+required_alert_item_list = [
     'type',
     'message',
     'severity',
@@ -32,11 +34,27 @@ alert_item_list = [
 ]
 
 def handler(event, context):
-    logger.info(f"Received event: {event}")
+    logger.info(f"Received event: {event["body"]}")
 
-    valid, error_message = validate_post(event)
+    try:
+        body: dict = json.loads(event["body"])
+
+    except json.JSONDecodeError:
+        logger.warning("Invalid JSON in request body")
+        return {
+            "statusCode": 400,
+            "headers": {
+                "content-type": "application/json"
+            },
+            "body": json.dumps({
+                "error": "Invalid JSON in request body"
+            })
+        }
+
+    valid, error_message = validate_post(body, required_item_list, required_alert_item_list)
 
     if not valid:
+        logger.warning(f"Invalid request body: {error_message}")
         return {
             "statusCode": 400,
             "headers": {
@@ -46,16 +64,13 @@ def handler(event, context):
                 "error": error_message
             })
         }
-    
-    # body: TelemetryDataPost = event["body"]
-    body: dict = event["body"]
 
     try:
-        response = dynamodb_common.telemetry_data_post(body, item_list, alert_item_list)
+        response = dynamodb_common.telemetry_data_post(body)
         logger.info(f"Successfully saved telemetry data to DynamoDB: {response}")
 
     except ValueError as e:
-        logger.error(f"Validation error: {e}")
+        logger.warning(f"Validation error: {e}")
         return {
             "statusCode": 400,
             "headers": {
@@ -67,7 +82,7 @@ def handler(event, context):
         }
 
     except Exception as e:
-        logger.error(f"Error occurred while saving data to DynamoDB: {e}")
+        logger.exception(f"Error occurred while saving data to DynamoDB")
         return {
             "statusCode": 500,
             "headers": {
@@ -77,8 +92,6 @@ def handler(event, context):
                 "error": "Internal server error"
             })
         }
-    
-    logger.info(f"Received event: {event}")
 
     return {
         "statusCode": 201,
