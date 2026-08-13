@@ -34,7 +34,7 @@ def handler(event, context):
     try:
         response = dynamodb_common.telemetry_data_get(edge_id, start_timestamp, end_timestamp)
 
-    except Exception as e:
+    except Exception:
         logger.exception(f"Error occurred while fetching data from DynamoDB: {e}")
         return {
             "statusCode": 500,

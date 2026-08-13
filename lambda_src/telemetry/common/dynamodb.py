@@ -1,9 +1,7 @@
-import json
 import os
-import logging
 import boto3
 
-from json_util import dict_to_dynamodb_json, dynamodb_json_to_dict
+from common.json_util import (dict_to_dynamodb_json, dynamodb_json_to_dict)
 
 def telemetry_data_post(body: dict):
     dynamodb = boto3.client('dynamodb')

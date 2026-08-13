@@ -22,8 +22,6 @@ def handler(event, context):
                 "error": "Missing request body"
             })
         }
-    
-    logger.info(f"Received event: {event['body']}")
 
     try:
         body: dict = json.loads(event['body'])
@@ -54,9 +52,11 @@ def handler(event, context):
             })
         }
 
+    logger.info(f"Received telemetry data: edge_id={body.get('edge_id')}, timestamp={body.get('timestamp')}")
+
     try:
         response = dynamodb_common.telemetry_data_post(body)
-        logger.info(f"Successfully saved telemetry data to DynamoDB: {response}")
+        logger.info(f"Successfully saved telemetry data to DynamoDB: edge_id={body.get('edge_id')}, timestamp={body.get('timestamp')}")
 
     except ValueError as e:
         logger.warning(f'Validation error: {e}')
@@ -70,7 +70,7 @@ def handler(event, context):
             })
         }
 
-    except Exception as e:
+    except Exception:
         logger.exception(f"Error occurred while saving data to DynamoDB")
         return {
             "statusCode": 500,
