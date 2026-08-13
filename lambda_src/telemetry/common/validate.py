@@ -10,8 +10,8 @@ def validate_get(event: dict):
     if "start_timestamp" not in event["queryStringParameters"] or "end_timestamp" not in event["queryStringParameters"]:
         return False, "Missing start_timestamp or end_timestamp in query string parameters"
 
-    start_timestamp = dt.strptime(event["queryStringParameters"]["start_timestamp"], '%Y-%m-%dT%H:%M:%S')
-    end_timestamp = dt.strptime(event["queryStringParameters"]["end_timestamp"], '%Y-%m-%dT%H:%M:%S')
+    start_timestamp = dt.strptime(event["queryStringParameters"]["start_timestamp"], '%Y-%m-%dT%H:%M:%SZ')
+    end_timestamp = dt.strptime(event["queryStringParameters"]["end_timestamp"], '%Y-%m-%dT%H:%M:%SZ')
 
     if start_timestamp > end_timestamp:
         return False, "start_timestamp cannot be greater than end_timestamp"
