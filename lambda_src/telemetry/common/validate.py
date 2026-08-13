@@ -10,25 +10,43 @@ def validate_get(event: dict):
     if "start_timestamp" not in event["queryStringParameters"] or "end_timestamp" not in event["queryStringParameters"]:
         return False, "Missing start_timestamp or end_timestamp in query string parameters"
 
-    if event.get("httpMethod") != 'GET':
-        return False, f"Method {event.get('httpMethod')} not allowed"
-
     return True, None
 
-def validate_post(body: dict, param: list, param2: list = None):
-    if body.get("httpMethod") != 'POST':
-        return False, f"Method {body.get('httpMethod')} not allowed"
+def validate_post(body: dict):
+
+    required_item_list = [
+        'edge_id',
+        'timestamp',
+        'firmware_version',
+        'user_id',
+        'temperature',
+        'humidity',
+        'pressure',
+        'status',
+        'battery_level',
+        'signal_strength',
+        'error_codes',
+        'last_maintenance',
+        'alerts'
+    ]
+
+    required_alert_item_list = [
+        'type',
+        'message',
+        'severity',
+        'timestamp'
+    ]
 
     try:
         for key, value in body.items():
-            if key not in param:
+            if key not in required_item_list:
                 return False, f'Invalid key: {key}'
             
             if key == 'alerts' and isinstance(value, list):
                 for i in value:
                     if isinstance(i, dict):
                         for alert_key in i.keys():
-                            if alert_key not in param2:
+                            if alert_key not in required_alert_item_list:
                                 return False, f'Invalid key in alert: {alert_key}'
                     else:
                         return False, f'Invalid alert item: {i}'

@@ -11,12 +11,6 @@ LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")
 logger = logging.getLogger(__name__)
 logger.setLevel(LOG_LEVEL)
 
-item_list = [
-    'edge_id',
-    'start_timestamp',
-    'end_timestamp'
-]
-
 def handler(event, context):
     logger.info(f"Received event: edge_id={event.get('pathParameters', {}).get('edge_id')}, start_timestamp={event.get('queryStringParameters', {}).get('start_timestamp')}, end_timestamp={event.get('queryStringParameters', {}).get('end_timestamp')}")
     valid, error_message = validate_get(event)

@@ -10,34 +10,23 @@ LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")
 logger = logging.getLogger(__name__)
 logger.setLevel(LOG_LEVEL)
 
-required_item_list = [
-    'edge_id',
-    'timestamp',
-    'firmware_version',
-    'user_id',
-    'temperature',
-    'humidity',
-    'pressure',
-    'status',
-    'battery_level',
-    'signal_strength',
-    'error_codes',
-    'last_maintenance',
-    'alerts'
-]
-
-required_alert_item_list = [
-    'type',
-    'message',
-    'severity',
-    'timestamp'
-]
-
 def handler(event, context):
-    logger.info(f"Received event: {event["body"]}")
+    if not event.get('body'):
+        logger.warning("Missing request body")
+        return {
+            "statusCode": 400,
+            "headers": {
+                "content-type": "application/json"
+            },
+            "body": json.dumps({
+                "error": "Missing request body"
+            })
+        }
+    
+    logger.info(f"Received event: {event['body']}")
 
     try:
-        body: dict = json.loads(event["body"])
+        body: dict = json.loads(event['body'])
 
     except json.JSONDecodeError:
         logger.warning("Invalid JSON in request body")
@@ -51,7 +40,7 @@ def handler(event, context):
             })
         }
 
-    valid, error_message = validate_post(body, required_item_list, required_alert_item_list)
+    valid, error_message = validate_post(body)
 
     if not valid:
         logger.warning(f"Invalid request body: {error_message}")
@@ -70,7 +59,7 @@ def handler(event, context):
         logger.info(f"Successfully saved telemetry data to DynamoDB: {response}")
 
     except ValueError as e:
-        logger.warning(f"Validation error: {e}")
+        logger.warning(f'Validation error: {e}')
         return {
             "statusCode": 400,
             "headers": {
