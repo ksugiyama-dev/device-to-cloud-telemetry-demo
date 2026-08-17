@@ -35,7 +35,7 @@ def handler(event, context):
         response = dynamodb_common.telemetry_data_get(edge_id, start_timestamp, end_timestamp)
 
     except Exception:
-        logger.exception(f"Error occurred while fetching data from DynamoDB: {e}")
+        logger.exception(f"Error occurred while fetching data from DynamoDB")
         return {
             "statusCode": 500,
             "headers": {
@@ -53,8 +53,10 @@ def handler(event, context):
             "headers": {
                 "content-type": "application/json"
             },
-            "body": json.dumps({})
-        }
+        "body": json.dumps({
+            "items": {}
+        })
+    }
     logger.info(f"Get Telemetry Data successful: edge_id={edge_id}, start_timestamp={start_timestamp}, end_timestamp={end_timestamp}")
     return {
         "statusCode": 200,
