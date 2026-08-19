@@ -1,20 +1,34 @@
+import json
 from datetime import datetime as dt
 
-def validate_get(event: dict):
-    if "pathParameters" not in event or "edge_id" not in event["pathParameters"]:
+def validate_get(path_parameters: dict, query_parameters: dict):
+    if "edge_id" not in path_parameters:
         return False, "Missing edge_id in path parameters"
 
-    if "queryStringParameters" not in event or not event["queryStringParameters"]:
-        return False, "Missing query string parameters"
+    elif not isinstance(path_parameters["edge_id"], str) or not path_parameters["edge_id"]:
+        return False, "Invalid edge_id format"
     
-    if "start_timestamp" not in event["queryStringParameters"] or "end_timestamp" not in event["queryStringParameters"]:
-        return False, "Missing start_timestamp or end_timestamp in query string parameters"
+    if "start_timestamp" not in query_parameters:
+        return False, "Missing start_timestamp in query string parameters"
+
+    if "end_timestamp" not in query_parameters:
+        return False, "Missing end_timestamp in query string parameters"
+
+    if not isinstance(query_parameters["start_timestamp"], str):
+        return False, "Invalid start_timestamp format"
+
+    if not isinstance(query_parameters["end_timestamp"], str):
+        return False, "Invalid end_timestamp format"
+    
+    try:
+        start_timestamp = dt.strptime(query_parameters["start_timestamp"], '%Y-%m-%dT%H:%M:%SZ')
+    except ValueError:
+        return False, "Invalid start_timestamp format"
 
     try:
-        start_timestamp = dt.strptime(event["queryStringParameters"]["start_timestamp"], '%Y-%m-%dT%H:%M:%SZ')
-        end_timestamp = dt.strptime(event["queryStringParameters"]["end_timestamp"], '%Y-%m-%dT%H:%M:%SZ')
+        end_timestamp = dt.strptime(query_parameters["end_timestamp"], '%Y-%m-%dT%H:%M:%SZ')
     except ValueError:
-        return False, "Invalid timestamp format"
+        return False, "Invalid end_timestamp format"
 
     if start_timestamp > end_timestamp:
         return False, "start_timestamp cannot be greater than end_timestamp"
@@ -51,6 +65,7 @@ def validate_post(body: dict):
         'severity',
         'timestamp'
     ]
+
     # Validate that all required values are present.
     for key in required_item_list:
         if key not in body:
@@ -62,14 +77,17 @@ def validate_post(body: dict):
             if key not in item_list:
                 return False, f'Invalid key: {key}'
 
-            if key == 'alerts' and isinstance(value, list):
-                for i in value:
-                    if isinstance(i, dict):
-                        for alert_key in i.keys():
-                            if alert_key not in alert_item_list:
-                                return False, f'Invalid key in alert: {alert_key}'
-                    else:
-                        return False, f'Invalid alert item: {i}'
+            if key == 'alerts':
+                if isinstance(value, list):
+                    for i in value:
+                        if isinstance(i, dict):
+                            for alert_key in i.keys():
+                                if alert_key not in alert_item_list:
+                                    return False, f'Invalid key in alert: {alert_key}'
+                        else:
+                            return False, f'Invalid alert item: {i}'
+                else:
+                    return False, f'Invalid alerts value: {value}'
 
         # TelemetryDataPost.model_validate(body)
     except Exception as e:

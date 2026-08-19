@@ -12,8 +12,12 @@ logger = logging.getLogger(__name__)
 logger.setLevel(LOG_LEVEL)
 
 def handler(event, context):
-    logger.info(f"Received event: edge_id={event.get('pathParameters', {}).get('edge_id')}, start_timestamp={event.get('queryStringParameters', {}).get('start_timestamp')}, end_timestamp={event.get('queryStringParameters', {}).get('end_timestamp')}")
-    valid, error_message = validate_get(event)
+
+    path_parameters = event.get('pathParameters', {})
+    query_parameters = event.get('queryStringParameters', {})
+    valid, error_message = validate_get(path_parameters, query_parameters)
+
+    logger.info(f"Received event: edge_id={path_parameters.get('edge_id')}, start_timestamp={query_parameters.get('start_timestamp')}, end_timestamp={query_parameters.get('end_timestamp')}")
 
     if not valid:
         return {
