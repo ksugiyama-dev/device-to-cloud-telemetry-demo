@@ -1,17 +1,18 @@
-
 from decimal import Decimal
 from boto3.dynamodb.types import TypeSerializer, TypeDeserializer
 
-def dict_to_dynamodb_json(dict_data: dict) -> dict:
-    serializer = TypeSerializer()
+def dict_to_dynamodb_json(items: list) -> list:
+    return_items = []
+    for item in items:
+        serializer = TypeSerializer()
 
-    dict_decimal = float_to_decimal(dict_data)
-    dynamodb_json = {
-        k: serializer.serialize(v)
-        for k, v in dict_decimal.items()
-        }
+        dict_decimal = float_to_decimal(item)
+        return_items.append ({
+            k: serializer.serialize(v)
+            for k, v in dict_decimal.items()
+            })
 
-    return dynamodb_json
+    return return_items
 
 def float_to_decimal(value) -> dict:
     if isinstance(value, list):

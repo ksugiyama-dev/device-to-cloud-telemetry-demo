@@ -5,11 +5,18 @@ from common.json_util import (dict_to_dynamodb_json, dynamodb_json_to_dict)
 
 def telemetry_data_post(body: dict):
     dynamodb = boto3.client('dynamodb')
-    item = dict_to_dynamodb_json(body)
+    items: list = dict_to_dynamodb_json(body['items'])
 
-    response = dynamodb.put_item(
-        TableName=os.environ['TABLE_NAME'],
-        Item=item
+    response = dynamodb.batch_write_item(
+        RequestItems={
+            os.environ['TABLE_NAME']: [
+                {
+                    'PutRequest': {
+                        'Item': item
+                    }
+                }
+            ] for item in items
+        }
     )
 
     return response

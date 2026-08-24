@@ -52,8 +52,6 @@ def handler(event, context):
             })
         }
 
-    body = event.get("body")
-
     logger.info(f"Received telemetry data: edge_id={body.get('edge_id')}, timestamp={body.get('timestamp')}")
 
     try:

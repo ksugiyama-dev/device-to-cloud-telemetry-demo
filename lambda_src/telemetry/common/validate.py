@@ -5,7 +5,7 @@ def validate_get(path_parameters: dict, query_parameters: dict):
     if "edge_id" not in path_parameters:
         return False, "Missing edge_id in path parameters"
 
-    elif not isinstance(path_parameters["edge_id"], str) or not path_parameters["edge_id"]:
+    if not isinstance(path_parameters["edge_id"], str) or not path_parameters["edge_id"]:
         return False, "Invalid edge_id format"
     
     if "start_timestamp" not in query_parameters:
@@ -66,31 +66,45 @@ def validate_post(body: dict):
         'timestamp'
     ]
 
-    # Validate that all required values are present.
-    for key in required_item_list:
-        if key not in body:
-            return False, f'Missing required key: {key}'
+    if not 'items' in body:
+        return False, "Missing 'items' in request body"
 
-    # Validate that unexpected values are not present and that the values are of the correct type.
-    try:
-        for key, value in body.items():
-            if key not in item_list:
-                return False, f'Invalid key: {key}'
+    if not isinstance(body['items'], list):
+        return False, "'items' must be a list"
 
-            if key == 'alerts':
-                if isinstance(value, list):
-                    for i in value:
-                        if isinstance(i, dict):
-                            for alert_key in i.keys():
-                                if alert_key not in alert_item_list:
-                                    return False, f'Invalid key in alert: {alert_key}'
-                        else:
-                            return False, f'Invalid alert item: {i}'
-                else:
-                    return False, f'Invalid alerts value: {value}'
+    if body['items'] == []:
+        return False, "'items' list cannot be empty"
 
-        # TelemetryDataPost.model_validate(body)
-    except Exception as e:
-        return False, f"Invalid telemetry data: {str(e)}"
+    if len(body['items']) > 25:
+        return False, "'items' list cannot contain more than 25 items"
+
+    for item in body['items']:
+
+        # Validate that all required values are present.
+        for key in required_item_list:
+            if key not in item:
+                return False, f'Missing required key: {key}'
+
+        # Validate that unexpected values are not present and that the values are of the correct type.
+        try:
+            for key, value in item.items():
+                if key not in item_list:
+                    return False, f'Invalid key: {key}'
+
+                if key == 'alerts':
+                    if isinstance(value, list):
+                        for i in value:
+                            if isinstance(i, dict):
+                                for alert_key in i.keys():
+                                    if alert_key not in alert_item_list:
+                                        return False, f'Invalid key in alert: {alert_key}'
+                            else:
+                                return False, f'Invalid alert item: {i}'
+                    else:
+                        return False, f'Invalid alerts value: {value}'
+
+            # TelemetryDataPost.model_validate(body)
+        except Exception as e:
+            return False, f"Invalid telemetry data: {str(e)}"
 
     return True, None

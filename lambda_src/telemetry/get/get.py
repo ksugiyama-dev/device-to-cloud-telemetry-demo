@@ -58,7 +58,7 @@ def handler(event, context):
                 "content-type": "application/json"
             },
         "body": json.dumps({
-            "items": {}
+            "items": []
         })
     }
     logger.info(f"Get Telemetry Data successful: edge_id={edge_id}, start_timestamp={start_timestamp}, end_timestamp={end_timestamp}")
