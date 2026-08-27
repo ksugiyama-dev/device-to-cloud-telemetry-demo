@@ -1,5 +1,6 @@
 import os
 import boto3
+from common.exceptions import UnprocessedItemsError
 
 from common.json_util import (dict_to_dynamodb_json, dynamodb_json_to_dict)
 
@@ -18,6 +19,24 @@ def telemetry_data_post(body: dict):
             ] for item in items
         }
     )
+
+    if response['UnprocessedItems']:
+        for i in range(10):  # Retry up to 10 times
+            response = dynamodb.batch_write_item(
+                RequestItems=response['UnprocessedItems']
+            )
+            if not response['UnprocessedItems']:
+                break
+
+            if i == 9:
+                #　明日はここから
+                unprocessed_items_list = [{
+                    'edge_id': i['PutRequest']['Item']['edge_id']['S'],
+                    'timestamp': i['PutRequest']['Item']['timestamp']['S']
+                } for i in response['UnprocessedItems'][os.environ['TABLE_NAME']]]
+
+                raise UnprocessedItemsError("Exceeded maximum retries for unprocessed items.\n" \
+                f'Unprocessed items: {str(unprocessed_items_list)}')
 
     return response
 

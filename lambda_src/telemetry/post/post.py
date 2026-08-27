@@ -1,6 +1,7 @@
 import os
 import json
 import logging
+from common.exceptions import UnprocessedItemsError
 
 import common.dynamodb as dynamodb_common
 from common.validate import validate_post
@@ -62,6 +63,17 @@ def handler(event, context):
         logger.warning(f'Validation error: {e}')
         return {
             "statusCode": 400,
+            "headers": {
+                "content-type": "application/json"
+            },
+            "body": json.dumps({
+                "error": str(e)
+            })
+        }
+    except UnprocessedItemsError as e:
+        logger.warning(f'Unprocessed items error: {e}')
+        return {
+            "statusCode": 429,
             "headers": {
                 "content-type": "application/json"
             },
