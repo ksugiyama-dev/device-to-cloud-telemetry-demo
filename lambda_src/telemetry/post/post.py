@@ -59,17 +59,6 @@ def handler(event, context):
         response = dynamodb_common.telemetry_data_post(body)
         logger.info(f"Successfully saved telemetry data to DynamoDB: edge_id={body.get('edge_id')}, timestamp={body.get('timestamp')}")
 
-    except ValueError as e:
-        logger.warning(f'Validation error: {e}')
-        return {
-            "statusCode": 400,
-            "headers": {
-                "content-type": "application/json"
-            },
-            "body": json.dumps({
-                "error": str(e)
-            })
-        }
     except UnprocessedItemsError as e:
         logger.warning(f'Unprocessed items error: {e}')
         return {
