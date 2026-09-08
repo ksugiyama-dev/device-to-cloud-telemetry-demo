@@ -55,7 +55,7 @@ def test_validate_get_rejects_invalid_edge_id_format_2():
     assert valid is False
     assert error_message == "Invalid edge_id format"
 
-def test_validate_get_rejects_invalid_edge_id_format_2():
+def test_validate_get_rejects_invalid_edge_id_format_3():
     path_parameters = {
         "edge_id": 12345,
     }
@@ -69,7 +69,7 @@ def test_validate_get_rejects_invalid_edge_id_format_2():
     assert valid is False
     assert error_message == "Invalid edge_id format"
 
-def test_validate_get_rejects_invalid_edge_id_format_3():
+def test_validate_get_rejects_invalid_edge_id_format_4():
     path_parameters = {
         "edge_id": None,
     }
